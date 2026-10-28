@@ -1,0 +1,68 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Default deny catch-all
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function isValidProject(data) {
+      return data.userId is string && data.userId == request.auth.uid
+        && data.projectName is string && data.projectName.size() > 0 && data.projectName.size() <= 200
+        && (!('clientName' in data) || (data.clientName is string && data.clientName.size() <= 200))
+        && (!('submissionDate' in data) || (data.submissionDate is string && data.submissionDate.size() <= 50))
+        && data.standardPipeLength is number && data.standardPipeLength > 0 && data.standardPipeLength <= 100
+        && data.pipeLengthUnit is string && (data.pipeLengthUnit == 'ft' || data.pipeLengthUnit == 'm')
+        && (!('companyName' in data) || (data.companyName is string && data.companyName.size() <= 200))
+        && (!('companyCity' in data) || (data.companyCity is string && data.companyCity.size() <= 200))
+        && (!('showBranding' in data) || data.showBranding is bool)
+        && (!('noteText' in data) || (data.noteText is string && data.noteText.size() <= 500))
+        && (!('logoUrl' in data) || (data.logoUrl is string && data.logoUrl.size() <= 2048))
+        && (!('clientLogoUrl' in data) || (data.clientLogoUrl is string && data.clientLogoUrl.size() <= 2048))
+        && data.pipeSizes is list && data.pipeSizes.size() <= 20
+        && (!('components' in data) || (data.components is list && data.components.size() <= 50))
+        && (!('componentItems' in data) || (data.componentItems is list && data.componentItems.size() <= 50))
+        && data.rows is list && data.rows.size() <= 100;
+    }
+
+    match /pipe_calculator_projects/{projectId} {
+      allow get: if isSignedIn() && isValidId(projectId) && existing().userId == request.auth.uid;
+      allow list: if isSignedIn() && resource.data.userId == request.auth.uid;
+
+      allow create: if isSignedIn()
+        && isValidId(projectId)
+        && isValidProject(incoming())
+        && incoming().createdAt == request.time
+        && incoming().updatedAt == request.time;
+
+      allow update: if isSignedIn()
+        && isValidId(projectId)
+        && isValidProject(incoming())
+        && incoming().userId == existing().userId
+        && incoming().createdAt == existing().createdAt
+        && incoming().updatedAt == request.time;
+
+      allow delete: if isSignedIn()
+        && isValidId(projectId)
+        && existing().userId == request.auth.uid;
+    }
+  }
+}

@@ -1,0 +1,107 @@
+{
+  "entities": {
+    "PipeCalculatorProject": {
+      "title": "PipeCalculatorProject",
+      "description": "Represents a solar engineering pipe requirement calculation project with catalog sizes, line-item component breakdowns, and branding assets.",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "The UID of the user who owns this project",
+          "maxLength": 128
+        },
+        "userEmail": {
+          "type": "string",
+          "description": "Email address of the project owner",
+          "maxLength": 256
+        },
+        "projectName": {
+          "type": "string",
+          "description": "Name of the solar project or site block",
+          "maxLength": 200
+        },
+        "clientName": {
+          "type": "string",
+          "description": "Client or company name",
+          "maxLength": 200
+        },
+        "submissionDate": {
+          "type": "string",
+          "description": "Date formatted string e.g. 05 Oct 2026",
+          "maxLength": 50
+        },
+        "standardPipeLength": {
+          "type": "number",
+          "description": "Standard commercially available pipe length value (e.g. 20 or 6)"
+        },
+        "pipeLengthUnit": {
+          "type": "string",
+          "description": "Unit for pipe length (ft or m)",
+          "enum": ["ft", "m"]
+        },
+        "companyName": {
+          "type": "string",
+          "description": "Engineering firm or contractor name",
+          "maxLength": 200
+        },
+        "companyCity": {
+          "type": "string",
+          "description": "Location or branch office string",
+          "maxLength": 200
+        },
+        "showBranding": {
+          "type": "boolean",
+          "description": "Flag to toggle company branding header and watermark"
+        },
+        "noteText": {
+          "type": "string",
+          "description": "Important notice or variation contingency text",
+          "maxLength": 500
+        },
+        "logoUrl": {
+          "type": "string",
+          "description": "Firebase Storage or public URL of the firm's logo",
+          "maxLength": 2048
+        },
+        "clientLogoUrl": {
+          "type": "string",
+          "description": "Firebase Storage or public URL of the client's logo",
+          "maxLength": 2048
+        },
+        "pipeSizes": {
+          "type": "array",
+          "description": "List of active pipe cross-section size designations"
+        },
+        "components": {
+          "type": "array",
+          "description": "List of structural categories (Purlin, Rafter, Leg, Supports, etc.)"
+        },
+        "componentItems": {
+          "type": "array",
+          "description": "Component workspace items containing individual cut lengths and member quantities"
+        },
+        "rows": {
+          "type": "array",
+          "description": "Table rows with quantities and individual member cut lengths"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp of document creation"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp of document last update"
+        }
+      },
+      "required": ["userId", "projectName", "standardPipeLength", "pipeLengthUnit", "pipeSizes", "rows", "createdAt", "updatedAt"]
+    }
+  },
+  "firestore": {
+    "/pipe_calculator_projects/{projectId}": {
+      "schema": "PipeCalculatorProject",
+      "description": "Stores user solar pipe calculation projects and cut-lists"
+    }
+  }
+}
